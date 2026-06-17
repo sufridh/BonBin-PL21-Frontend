@@ -30,16 +30,16 @@ export default function Login() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-6xl mb-3">⚽</div>
-          <h1 className="font-display text-4xl text-bonbin-gold tracking-wider">BONBIN PL</h1>
-          <p className="text-gray-400 text-sm mt-1">PICK'EM — WORLD CUP 2026</p>
+          <h1 className="font-display text-4xl text-gold-400 tracking-wider">BONBIN PL</h1>
+          <p className="text-maroon-300 text-sm mt-1">PICK'EM — WORLD CUP 2026</p>
         </div>
 
         <div className="card p-6">
-          <h2 className="text-xl font-bold mb-4">Masuk</h2>
-          {error && <div className="bg-red-900/50 border border-red-700 text-red-300 rounded-lg p-3 mb-4 text-sm">{error}</div>}
+          <h2 className="text-xl font-bold mb-4 text-cream-100">Masuk</h2>
+          {error && <div className="bg-maroon-700/60 border border-maroon-500 text-gold-200 rounded-lg p-3 mb-4 text-sm">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Username</label>
+              <label className="block text-sm text-maroon-300 mb-1">Username</label>
               <input
                 className="input"
                 type="text"
@@ -50,7 +50,7 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Password</label>
+              <label className="block text-sm text-maroon-300 mb-1">Password</label>
               <input
                 className="input"
                 type="password"
@@ -64,9 +64,9 @@ export default function Login() {
               {loading ? 'Masuk...' : 'Masuk'}
             </button>
           </form>
-          <p className="text-center text-gray-500 text-sm mt-4">
+          <p className="text-center text-maroon-300 text-sm mt-4">
             Belum punya akun?{' '}
-            <Link to="/register" className="text-bonbin-gold hover:underline">Daftar</Link>
+            <Link to="/register" className="text-gold-400 hover:underline">Daftar</Link>
           </p>
         </div>
       </div>

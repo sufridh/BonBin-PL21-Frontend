@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
+import Flag from './Flag';
 
 const STATUS_BADGE = {
   scheduled: null,
-  live: <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full animate-pulse font-bold">LIVE</span>,
-  finished: <span className="bg-gray-700 text-gray-300 text-xs px-2 py-0.5 rounded-full">Selesai</span>,
+  live: <span className="bg-gold-400 text-maroon-950 text-xs px-2 py-0.5 rounded-full animate-pulse font-bold">LIVE</span>,
+  finished: <span className="bg-maroon-700 text-maroon-300 text-xs px-2 py-0.5 rounded-full">Selesai</span>,
 };
 
 function getResultLabel(points) {
-  if (points === 3) return { label: '+3 ✓ Skor Tepat!', cls: 'text-bonbin-gold font-bold' };
-  if (points === 1) return { label: '+1 Hasil Benar', cls: 'text-green-400' };
-  if (points === 0) return { label: '0 Meleset', cls: 'text-gray-500' };
+  if (points === 3) return { label: '+3 ✓ Skor Tepat!', cls: 'text-gold-400 font-bold' };
+  if (points === 1) return { label: '+1 Hasil Benar', cls: 'text-gold-200' };
+  if (points === 0) return { label: '0 Meleset', cls: 'text-maroon-300' };
   return null;
 }
 
@@ -56,15 +57,15 @@ export default function MatchCard({ match, onPickSaved }) {
   const pickChanged = String(match.home_score_pick ?? '') !== homeInput || String(match.away_score_pick ?? '') !== awayInput;
 
   return (
-    <div className={`card p-4 ${match.status === 'live' ? 'border-red-700' : ''}`}>
+    <div className={`card p-4 ${match.status === 'live' ? 'border-gold-400/70' : ''}`}>
       {/* Header: stage + date */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs text-gray-500 uppercase tracking-wide">
+        <span className="text-xs text-maroon-300 uppercase tracking-wide">
           {match.group_name || match.stage}
         </span>
         <div className="flex items-center gap-2">
           {STATUS_BADGE[match.status]}
-          <span className="text-xs text-gray-500">{dateStr} · {timeStr}</span>
+          <span className="text-xs text-maroon-300">{dateStr} · {timeStr}</span>
         </div>
       </div>
 
@@ -72,20 +73,20 @@ export default function MatchCard({ match, onPickSaved }) {
       <div className="flex items-center gap-2">
         {/* Home team */}
         <div className="flex-1 flex flex-col items-end">
-          <span className="text-2xl">{match.home_flag}</span>
-          <span className="text-sm font-semibold text-center leading-tight mt-1">{match.home_team}</span>
+          <Flag team={match.home_team} className="w-8 h-6" />
+          <span className="text-sm font-semibold text-center leading-tight mt-1 text-cream-100">{match.home_team}</span>
         </div>
 
         {/* Score area */}
         <div className="flex flex-col items-center px-3 min-w-[120px]">
           {match.status === 'finished' || match.status === 'live' ? (
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-bonbin-gold">{match.home_score}</span>
-              <span className="text-gray-500">–</span>
-              <span className="text-2xl font-bold text-bonbin-gold">{match.away_score}</span>
+              <span className="text-2xl font-bold text-gold-400">{match.home_score}</span>
+              <span className="text-maroon-300">–</span>
+              <span className="text-2xl font-bold text-gold-400">{match.away_score}</span>
             </div>
           ) : (
-            <div className="text-gray-600 text-lg font-bold">vs</div>
+            <div className="text-maroon-300 text-lg font-bold">vs</div>
           )}
 
           {/* Pick input */}
@@ -94,44 +95,44 @@ export default function MatchCard({ match, onPickSaved }) {
               <input
                 type="number"
                 min="0" max="20"
-                className="w-10 text-center bg-gray-800 border border-gray-600 rounded px-1 py-1 text-sm focus:outline-none focus:border-bonbin-gold"
+                className="w-10 text-center bg-maroon-800 border border-maroon-600 rounded px-1 py-1 text-sm text-cream-100 focus:outline-none focus:border-gold-400"
                 value={homeInput}
                 onChange={e => setHomeInput(e.target.value)}
                 placeholder="0"
               />
-              <span className="text-gray-500 text-xs">–</span>
+              <span className="text-maroon-300 text-xs">–</span>
               <input
                 type="number"
                 min="0" max="20"
-                className="w-10 text-center bg-gray-800 border border-gray-600 rounded px-1 py-1 text-sm focus:outline-none focus:border-bonbin-gold"
+                className="w-10 text-center bg-maroon-800 border border-maroon-600 rounded px-1 py-1 text-sm text-cream-100 focus:outline-none focus:border-gold-400"
                 value={awayInput}
                 onChange={e => setAwayInput(e.target.value)}
                 placeholder="0"
               />
             </div>
           ) : hasPick ? (
-            <div className="flex items-center gap-1 mt-2 text-gray-400 text-sm">
-              <span className="text-white font-bold">{match.home_score_pick}</span>
-              <span className="text-gray-600">–</span>
-              <span className="text-white font-bold">{match.away_score_pick}</span>
-              <span className="text-gray-500 text-xs ml-1">(tebakan)</span>
+            <div className="flex items-center gap-1 mt-2 text-maroon-300 text-sm">
+              <span className="text-cream-100 font-bold">{match.home_score_pick}</span>
+              <span className="text-maroon-300">–</span>
+              <span className="text-cream-100 font-bold">{match.away_score_pick}</span>
+              <span className="text-maroon-300 text-xs ml-1">(tebakan)</span>
             </div>
           ) : (
-            <p className="text-gray-600 text-xs mt-2">Terkunci</p>
+            <p className="text-maroon-300 text-xs mt-2">Terkunci</p>
           )}
         </div>
 
         {/* Away team */}
         <div className="flex-1 flex flex-col items-start">
-          <span className="text-2xl">{match.away_flag}</span>
-          <span className="text-sm font-semibold leading-tight mt-1">{match.away_team}</span>
+          <Flag team={match.away_team} className="w-8 h-6" />
+          <span className="text-sm font-semibold leading-tight mt-1 text-cream-100">{match.away_team}</span>
         </div>
       </div>
 
       {/* Save button & result */}
       <div className="mt-3 flex flex-col items-center gap-1">
         {result && <p className={`text-sm ${result.cls}`}>{result.label}</p>}
-        {error && <p className="text-red-400 text-xs">{error}</p>}
+        {error && <p className="text-gold-200 text-xs">{error}</p>}
         {!locked && (
           <button
             className="btn-primary text-sm py-1.5 px-6"
@@ -142,7 +143,7 @@ export default function MatchCard({ match, onPickSaved }) {
           </button>
         )}
         {match.venue && (
-          <p className="text-xs text-gray-600 mt-1">{match.city || match.venue}</p>
+          <p className="text-xs text-maroon-300 mt-1">{match.city || match.venue}</p>
         )}
       </div>
     </div>

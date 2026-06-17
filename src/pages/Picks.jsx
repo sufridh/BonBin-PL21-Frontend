@@ -52,16 +52,16 @@ export default function Picks() {
       {/* Stats bar */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="card p-3 text-center">
-          <div className="text-2xl font-bold text-bonbin-gold">{totalPicks}</div>
-          <div className="text-xs text-gray-500">Tebakan Dibuat</div>
+          <div className="text-2xl font-bold text-gold-400">{totalPicks}</div>
+          <div className="text-xs text-maroon-300">Tebakan Dibuat</div>
         </div>
         <div className="card p-3 text-center">
-          <div className={`text-2xl font-bold ${openMatches > 0 ? 'text-green-400' : 'text-gray-500'}`}>{openMatches}</div>
-          <div className="text-xs text-gray-500">Belum Ditebak</div>
+          <div className={`text-2xl font-bold ${openMatches > 0 ? 'text-gold-300' : 'text-maroon-300'}`}>{openMatches}</div>
+          <div className="text-xs text-maroon-300">Belum Ditebak</div>
         </div>
         <div className="card p-3 text-center">
-          <div className="text-2xl font-bold text-white">{matches.length}</div>
-          <div className="text-xs text-gray-500">Total Pertandingan</div>
+          <div className="text-2xl font-bold text-cream-100">{matches.length}</div>
+          <div className="text-xs text-maroon-300">Total Pertandingan</div>
         </div>
       </div>
 
@@ -78,8 +78,8 @@ export default function Picks() {
             onClick={() => setFilter(key)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
               filter === key
-                ? 'bg-bonbin-gold text-bonbin-dark'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-gold-400 text-maroon-950'
+                : 'bg-maroon-800 text-maroon-300 hover:bg-maroon-700'
             }`}
           >
             {label}
@@ -88,14 +88,14 @@ export default function Picks() {
       </div>
 
       {loading && (
-        <div className="text-center text-gray-500 py-12">
+        <div className="text-center text-maroon-300 py-12">
           <div className="text-4xl mb-3 animate-spin">⚽</div>
           <p>Memuat pertandingan...</p>
         </div>
       )}
 
       {!loading && Object.keys(grouped).length === 0 && (
-        <div className="text-center text-gray-500 py-12">
+        <div className="text-center text-maroon-300 py-12">
           <div className="text-4xl mb-3">🏟️</div>
           <p>{filter === 'unpicked' ? 'Semua sudah ditebak! Keren.' : 'Belum ada pertandingan.'}</p>
         </div>
@@ -103,7 +103,7 @@ export default function Picks() {
 
       {Object.entries(grouped).map(([date, dayMatches]) => (
         <div key={date} className="mb-6">
-          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 px-1">{date}</h3>
+          <h3 className="text-xs font-bold text-maroon-300 uppercase tracking-widest mb-3 px-1">{date}</h3>
           <div className="space-y-3">
             {dayMatches.map(match => (
               <MatchCard key={match.id} match={match} onPickSaved={loadMatches} />

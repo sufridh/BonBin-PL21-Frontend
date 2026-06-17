@@ -30,16 +30,16 @@ export default function Register() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-6xl mb-3">⚽</div>
-          <h1 className="font-display text-4xl text-bonbin-gold tracking-wider">BONBIN PL</h1>
-          <p className="text-gray-400 text-sm mt-1">PICK'EM — WORLD CUP 2026</p>
+          <h1 className="font-display text-4xl text-gold-400 tracking-wider">BONBIN PL</h1>
+          <p className="text-maroon-300 text-sm mt-1">PICK'EM — WORLD CUP 2026</p>
         </div>
 
         <div className="card p-6">
           <h2 className="text-xl font-bold mb-4">Daftar Akun</h2>
-          {error && <div className="bg-red-900/50 border border-red-700 text-red-300 rounded-lg p-3 mb-4 text-sm">{error}</div>}
+          {error && <div className="bg-maroon-700/60 border border-maroon-500 text-gold-200 rounded-lg p-3 mb-4 text-sm">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Nama Tampil</label>
+              <label className="block text-sm text-maroon-300 mb-1">Nama Tampil</label>
               <input
                 className="input"
                 type="text"
@@ -50,7 +50,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Username</label>
+              <label className="block text-sm text-maroon-300 mb-1">Username</label>
               <input
                 className="input"
                 type="text"
@@ -62,7 +62,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Password</label>
+              <label className="block text-sm text-maroon-300 mb-1">Password</label>
               <input
                 className="input"
                 type="password"
@@ -74,7 +74,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Kode Undangan</label>
+              <label className="block text-sm text-maroon-300 mb-1">Kode Undangan</label>
               <input
                 className="input"
                 type="text"
@@ -83,15 +83,15 @@ export default function Register() {
                 onChange={e => setForm(f => ({ ...f, invite_code: e.target.value }))}
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">Hanya member Bonbin PL yang bisa daftar</p>
+              <p className="text-xs text-maroon-300 mt-1">Hanya member Bonbin PL yang bisa daftar</p>
             </div>
             <button className="btn-primary w-full" type="submit" disabled={loading}>
               {loading ? 'Mendaftar...' : 'Daftar'}
             </button>
           </form>
-          <p className="text-center text-gray-500 text-sm mt-4">
+          <p className="text-center text-maroon-300 text-sm mt-4">
             Sudah punya akun?{' '}
-            <Link to="/login" className="text-bonbin-gold hover:underline">Masuk</Link>
+            <Link to="/login" className="text-gold-400 hover:underline">Masuk</Link>
           </p>
         </div>
       </div>

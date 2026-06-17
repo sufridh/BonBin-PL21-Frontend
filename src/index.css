@@ -4,22 +4,46 @@
 
 @layer base {
   body {
-    @apply bg-gray-950 text-gray-100;
+    @apply bg-maroon-950 text-cream-100;
     font-family: 'Inter', sans-serif;
+    position: relative;
+  }
+
+  /* Fixed low-opacity pitch texture behind all content */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(ellipse at top, rgba(122, 27, 46, 0.35), transparent 60%),
+      linear-gradient(180deg, #1c0408 0%, #2b0a12 40%, #1c0408 100%);
+    pointer-events: none;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: theme('backgroundImage.pitch-texture');
+    background-repeat: repeat;
+    background-size: 480px;
+    opacity: 0.05;
+    pointer-events: none;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-bonbin-gold text-bonbin-dark font-bold px-4 py-2 rounded-lg hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-gold-400 text-maroon-950 font-bold px-4 py-2 rounded-lg hover:bg-gold-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_12px_rgba(232,181,74,0.25)];
   }
   .btn-secondary {
-    @apply bg-gray-800 text-gray-100 font-semibold px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors;
+    @apply bg-maroon-800 text-cream-100 font-semibold px-4 py-2 rounded-lg hover:bg-maroon-700 transition-colors border border-maroon-600;
   }
   .card {
-    @apply bg-gray-900 border border-gray-800 rounded-xl;
+    @apply bg-maroon-900/80 border border-maroon-700 rounded-xl backdrop-blur-sm;
   }
   .input {
-    @apply bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-bonbin-gold;
+    @apply bg-maroon-800 border border-maroon-600 text-cream-100 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-gold-400 placeholder:text-maroon-300;
   }
 }
