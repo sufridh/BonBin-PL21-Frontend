@@ -14,6 +14,7 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/picks', label: '⚽ Tebak', show: !!user },
+    { to: '/my-picks', label: '📝 Tebakan Saya', show: !!user },
     { to: '/leaderboard', label: '🏆 Klasemen', show: true },
     { to: '/admin', label: '⚙️ Admin', show: user?.is_admin },
   ].filter(l => l.show);
