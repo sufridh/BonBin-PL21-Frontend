@@ -30,7 +30,7 @@ const EXAMPLES = [
   },
   {
     actual: { home: 2, away: 1 },
-    pick:   { home: 3, away: 2 },
+    pick:   { home: 4, away: 2 },
     label: 'Hasil Benar',
     points: 1.5,
     color: 'green',
