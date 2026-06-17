@@ -14,7 +14,6 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/picks', label: '⚽ Tebak', show: !!user },
-    { to: '/my-picks', label: '📝 Tebakan Saya', show: !!user },
     { to: '/leaderboard', label: '🏆 Klasemen', show: true },
     { to: '/admin', label: '⚙️ Admin', show: user?.is_admin },
   ].filter(l => l.show);
@@ -30,7 +29,7 @@ export default function Navbar() {
             to={user ? '/picks' : '/login'}
             className="flex items-center gap-1.5 flex-shrink-0 min-w-0"
           >
-            <span className="text-lg sm:text-xl flex-shrink-0">⚽</span>
+            <img src="/logo.svg" alt="Bonbin PL" className="h-6 sm:h-7 w-auto flex-shrink-0" />
             <span className="font-display text-base sm:text-lg text-gold-400 tracking-wider whitespace-nowrap">
               BONBIN PL
             </span>

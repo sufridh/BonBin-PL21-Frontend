@@ -34,7 +34,7 @@ export default function Login() {
       />
       <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
-          <div className="text-6xl mb-3">⚽</div>
+          <img src="/logo.svg" alt="Bonbin PL" className="h-16 w-auto mx-auto mb-3" />
           <h1 className="font-display text-4xl text-gold-400 tracking-wider">BONBIN PL</h1>
           <p className="text-maroon-300 text-sm mt-1">PICK'EM — WORLD CUP 2026</p>
         </div>

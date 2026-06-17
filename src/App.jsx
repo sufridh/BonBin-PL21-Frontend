@@ -5,7 +5,6 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Picks from './pages/Picks';
-import MyPicks from './pages/MyPicks';
 import Leaderboard from './pages/Leaderboard';
 import Admin from './pages/Admin';
 
@@ -35,7 +34,6 @@ function AppRoutes() {
           <Route path="/login" element={user ? <Navigate to="/picks" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/picks" /> : <Register />} />
           <Route path="/picks" element={<PrivateRoute><Picks /></PrivateRoute>} />
-          <Route path="/my-picks" element={<PrivateRoute><MyPicks /></PrivateRoute>} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />

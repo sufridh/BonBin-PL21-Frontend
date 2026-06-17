@@ -14,13 +14,6 @@ export default function Admin() {
   const [scoreForm, setScoreForm] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // Admin "view/edit any account's picks" state
-  const [selectedUserId, setSelectedUserId] = useState('');
-  const [userPicks, setUserPicks] = useState([]);
-  const [picksLoading, setPicksLoading] = useState(false);
-  const [pickForm, setPickForm] = useState({});
-  const [pickSavingId, setPickSavingId] = useState(null);
-
   async function loadData() {
     const [mRes, lRes] = await Promise.all([
       api.get('/matches'),
@@ -31,68 +24,6 @@ export default function Admin() {
   }
 
   useEffect(() => { loadData(); }, []);
-
-  async function loadUserPicks(userId) {
-    if (!userId) { setUserPicks([]); return; }
-    setPicksLoading(true);
-    try {
-      const res = await api.get(`/picks/admin/user/${userId}`);
-      setUserPicks(res.data);
-      // Pre-fill the edit form with existing picks
-      const form = {};
-      res.data.forEach(row => {
-        form[row.match_id] = {
-          home: row.home_score_pick ?? '',
-          away: row.away_score_pick ?? ''
-        };
-      });
-      setPickForm(form);
-    } catch (err) {
-      alert(err.response?.data?.error || 'Gagal memuat tebakan member');
-    } finally {
-      setPicksLoading(false);
-    }
-  }
-
-  function selectUser(userId) {
-    setSelectedUserId(userId);
-    loadUserPicks(userId);
-  }
-
-  async function savePick(matchId) {
-    const form = pickForm[matchId];
-    if (!form || form.home === '' || form.away === '') {
-      alert('Isi skor kandang & tandang terlebih dahulu');
-      return;
-    }
-    setPickSavingId(matchId);
-    try {
-      await api.put('/picks/admin', {
-        user_id: selectedUserId,
-        match_id: matchId,
-        home_score_pick: parseInt(form.home),
-        away_score_pick: parseInt(form.away)
-      });
-      await loadUserPicks(selectedUserId);
-    } catch (err) {
-      alert(err.response?.data?.error || 'Gagal menyimpan tebakan');
-    } finally {
-      setPickSavingId(null);
-    }
-  }
-
-  async function clearPick(pickId, matchId) {
-    if (!confirm('Hapus tebakan ini untuk member ini?')) return;
-    setPickSavingId(matchId);
-    try {
-      await api.delete(`/picks/admin/${pickId}`);
-      await loadUserPicks(selectedUserId);
-    } catch (err) {
-      alert(err.response?.data?.error || 'Gagal menghapus tebakan');
-    } finally {
-      setPickSavingId(null);
-    }
-  }
 
   async function addMatch(e) {
     e.preventDefault();
@@ -144,10 +75,10 @@ export default function Admin() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
-        {['matches', 'add', 'picks', 'users'].map(t => (
+        {['matches', 'add', 'users'].map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium ${tab === t ? 'bg-gold-400 text-maroon-950' : 'bg-maroon-800 text-maroon-300 hover:bg-maroon-700'}`}>
-            {t === 'matches' ? '⚽ Pertandingan' : t === 'add' ? '➕ Tambah' : t === 'picks' ? '🎯 Tebakan' : '👥 Member'}
+            {t === 'matches' ? '⚽ Pertandingan' : t === 'add' ? '➕ Tambah' : '👥 Member'}
           </button>
         ))}
       </div>
@@ -266,91 +197,6 @@ export default function Admin() {
               </button>
             </div>
           </form>
-        </div>
-      )}
-
-      {/* Picks — view & edit any member's saved guesses */}
-      {tab === 'picks' && (
-        <div className="space-y-4">
-          <div>
-            <label className="text-xs text-maroon-300 mb-1 block">Pilih Member</label>
-            <select className="input" value={selectedUserId}
-              onChange={e => selectUser(e.target.value)}>
-              <option value="">-- Pilih member --</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.display_name} (@{u.username})</option>
-              ))}
-            </select>
-          </div>
-
-          {!selectedUserId && (
-            <p className="text-sm text-maroon-300">Pilih member di atas untuk melihat & mengubah tebakan mereka.</p>
-          )}
-
-          {selectedUserId && picksLoading && (
-            <div className="text-center text-maroon-300 py-8">
-              <div className="text-3xl mb-2 animate-spin">⚽</div>
-              <p>Memuat tebakan...</p>
-            </div>
-          )}
-
-          {selectedUserId && !picksLoading && (
-            <div className="space-y-3">
-              {userPicks.map(row => {
-                const form = pickForm[row.match_id] || { home: '', away: '' };
-                const hasPick = row.pick_id != null;
-                return (
-                  <div key={row.match_id} className="card p-4">
-                    <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-                      <div className="font-semibold text-sm flex items-center gap-1.5 text-cream-100">
-                        <Flag team={row.home_team} className="w-5 h-3.5" /> {row.home_team} vs {row.away_team} <Flag team={row.away_team} className="w-5 h-3.5" />
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        {row.is_locked && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-gold-400/20 text-gold-300">🔒 Terkunci</span>
-                        )}
-                        {row.home_score != null && (
-                          <span className="text-gold-400 font-bold text-sm">Hasil: {row.home_score}–{row.away_score}</span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-xs text-maroon-300 mb-3">
-                      {new Date(row.match_date).toLocaleString('id-ID')} · {row.group_name || row.stage}
-                    </div>
-                    <div className="flex flex-wrap gap-2 items-center">
-                      <input type="number" min="0" max="20" placeholder="H"
-                        className="w-12 bg-maroon-800 border border-maroon-600 rounded px-2 py-1 text-sm text-center"
-                        value={form.home}
-                        onChange={e => setPickForm(f => ({ ...f, [row.match_id]: { ...f[row.match_id], home: e.target.value } }))}
-                      />
-                      <span className="text-maroon-300">–</span>
-                      <input type="number" min="0" max="20" placeholder="A"
-                        className="w-12 bg-maroon-800 border border-maroon-600 rounded px-2 py-1 text-sm text-center"
-                        value={form.away}
-                        onChange={e => setPickForm(f => ({ ...f, [row.match_id]: { ...f[row.match_id], away: e.target.value } }))}
-                      />
-                      <button onClick={() => savePick(row.match_id)} disabled={pickSavingId === row.match_id}
-                        className="btn-primary text-xs py-1 px-3">
-                        {pickSavingId === row.match_id ? 'Menyimpan...' : hasPick ? 'Update Tebakan' : 'Simpan Tebakan'}
-                      </button>
-                      {hasPick && (
-                        <button onClick={() => clearPick(row.pick_id, row.match_id)} disabled={pickSavingId === row.match_id}
-                          className="text-xs px-3 py-1 rounded-lg bg-maroon-600/60 text-gold-200 hover:bg-maroon-600">
-                          Hapus
-                        </button>
-                      )}
-                      {!hasPick && (
-                        <span className="text-xs text-maroon-400 italic">Belum ditebak</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-              {userPicks.length === 0 && (
-                <p className="text-sm text-maroon-300">Belum ada pertandingan.</p>
-              )}
-            </div>
-          )}
         </div>
       )}
 
