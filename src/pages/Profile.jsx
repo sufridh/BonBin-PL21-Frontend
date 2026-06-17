@@ -157,8 +157,8 @@ export default function Profile() {
     return acc;
   }, {});
 
-  const totalPoints = myPicks.reduce((sum, m) => sum + (m.points_earned ?? 0), 0);
-  const exactScores = myPicks.filter(m => m.points_earned === 3).length;
+  const totalPoints = myPicks.reduce((sum, m) => sum + Number(m.points_earned ?? 0), 0);
+  const exactScores = myPicks.filter(m => Number(m.points_earned) === 3).length;
   const pending = myPicks.filter(m => m.points_earned == null).length;
 
   return (
@@ -242,7 +242,7 @@ export default function Profile() {
           <div className="text-xs text-maroon-300">Total Tebakan</div>
         </div>
         <div className="card p-3 text-center">
-          <div className="text-2xl font-bold text-cream-100">{totalPoints}</div>
+          <div className="text-2xl font-bold text-cream-100">{Math.round(totalPoints * 10) / 10}</div>
           <div className="text-xs text-maroon-300">Poin Terkumpul</div>
         </div>
         <div className="card p-3 text-center">

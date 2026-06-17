@@ -9,10 +9,17 @@ const STATUS_BADGE = {
 };
 
 function getResultLabel(points) {
-  if (points === 3) return { label: '+3 ✓ Skor Tepat!', cls: 'text-gold-400 font-bold' };
-  if (points === 1) return { label: '+1 Hasil Benar', cls: 'text-gold-200' };
-  if (points === 0) return { label: '0 Meleset', cls: 'text-maroon-300' };
-  return null;
+  const p = Number(points);
+  if (Number.isNaN(p)) return null;
+  if (p >= 3) return { label: '+3 ✓ Skor Tepat!', cls: 'text-gold-400 font-bold' };
+  if (p > 1) return { label: `+${formatPoints(p)} Hampir Tepat!`, cls: 'text-gold-300 font-bold' };
+  if (p === 1) return { label: '+1 Hasil Benar', cls: 'text-gold-200' };
+  return { label: '0 Meleset', cls: 'text-maroon-300' };
+}
+
+function formatPoints(p) {
+  // Show one decimal place only if needed (e.g. "2.5" but not "2.0")
+  return Number.isInteger(p) ? String(p) : p.toFixed(1);
 }
 
 export default function MatchCard({ match, onPickSaved }) {

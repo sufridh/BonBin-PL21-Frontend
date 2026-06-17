@@ -30,7 +30,7 @@ export default function Leaderboard() {
         <div className="text-4xl">🏆</div>
         <div>
           <h1 className="text-2xl font-bold text-cream-100">Klasemen</h1>
-          <p className="text-maroon-300 text-sm">Skor tepat = 3 poin · Hasil benar = 1 poin</p>
+          <p className="text-maroon-300 text-sm">Skor tepat = 3 poin · Hasil benar = 1–3 poin (makin dekat, makin tinggi)</p>
         </div>
       </div>
 
@@ -84,7 +84,7 @@ export default function Leaderboard() {
               {/* Points */}
               <div className="text-right flex-shrink-0">
                 <div className={`text-2xl font-bold ${rank === 1 ? 'text-gold-400' : 'text-cream-100'}`}>
-                  {entry.total_points}
+                  {Math.round(Number(entry.total_points) * 10) / 10}
                 </div>
                 <div className="text-xs text-maroon-300">poin</div>
               </div>
