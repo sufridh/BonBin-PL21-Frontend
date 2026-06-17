@@ -8,6 +8,7 @@ import Picks from './pages/Picks';
 import Leaderboard from './pages/Leaderboard';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
+import HowToScore from './pages/HowToScore';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -38,6 +39,7 @@ function AppRoutes() {
           <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+          <Route path="/cara-poin" element={<HowToScore />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
