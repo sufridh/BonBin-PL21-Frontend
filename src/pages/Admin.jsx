@@ -6,13 +6,20 @@ export default function Admin() {
   const [matches, setMatches] = useState([]);
   const [users, setUsers] = useState([]);
   const [tab, setTab] = useState('matches');
-  const [syncMsg, setSyncMsg] = useState('');
   const [addForm, setAddForm] = useState({
     home_team: '', away_team: '', home_flag: '', away_flag: '',
     match_date: '', stage: 'Group Stage', group_name: '', venue: '', city: ''
   });
   const [scoreForm, setScoreForm] = useState({});
   const [loading, setLoading] = useState(false);
+
+  // Golden Boot state
+  const [scorers, setScorers] = useState([]);
+  const [gbWinner, setGbWinner] = useState(null);
+  const [gbSearch, setGbSearch] = useState('');
+  const [gbAllPicks, setGbAllPicks] = useState([]);
+  const [gbLoading, setGbLoading] = useState(false);
+  const [gbMsg, setGbMsg] = useState('');
 
   async function loadData() {
     const [mRes, lRes] = await Promise.all([
@@ -23,7 +30,24 @@ export default function Admin() {
     setUsers(lRes.data);
   }
 
+  async function loadGoldenBoot() {
+    setGbLoading(true);
+    try {
+      const [scorersRes, winnerRes, allPicksRes] = await Promise.all([
+        api.get('/golden-boot/scorers').catch(() => ({ data: [] })),
+        api.get('/golden-boot/winner').catch(() => ({ data: null })),
+        api.get('/golden-boot/all').catch(() => ({ data: { picks: [], winner: null } })),
+      ]);
+      setScorers(scorersRes.data || []);
+      setGbWinner(winnerRes.data || null);
+      setGbAllPicks(allPicksRes.data?.picks || []);
+    } finally {
+      setGbLoading(false);
+    }
+  }
+
   useEffect(() => { loadData(); }, []);
+  useEffect(() => { if (tab === 'golden_boot') loadGoldenBoot(); }, [tab]);
 
   async function addMatch(e) {
     e.preventDefault();
@@ -66,6 +90,40 @@ export default function Admin() {
     loadData();
   }
 
+  async function setGoldenBootWinner(scorer) {
+    if (!confirm(`Set ${scorer.player_name} sebagai Golden Boot winner?`)) return;
+    try {
+      await api.post('/golden-boot/winner', {
+        player_id: scorer.player_id,
+        player_name: scorer.player_name,
+        team_name: scorer.team_name,
+        goals: scorer.goals || 0,
+      });
+      setGbMsg(`✓ ${scorer.player_name} ditetapkan sebagai Golden Boot winner. +5 poin diberikan ke yang benar!`);
+      loadGoldenBoot();
+    } catch (err) {
+      setGbMsg('Error: ' + (err.response?.data?.error || err.message));
+    }
+  }
+
+  async function clearGoldenBootWinner() {
+    if (!confirm('Hapus Golden Boot winner? Picks akan terbuka kembali.')) return;
+    try {
+      await api.delete('/golden-boot/winner');
+      setGbMsg('Winner dihapus. Picks terbuka kembali.');
+      loadGoldenBoot();
+    } catch (err) {
+      setGbMsg('Error: ' + (err.response?.data?.error || err.message));
+    }
+  }
+
+  const gbFiltered = gbSearch.trim()
+    ? scorers.filter(s =>
+        s.player_name.toLowerCase().includes(gbSearch.toLowerCase()) ||
+        s.team_name.toLowerCase().includes(gbSearch.toLowerCase())
+      )
+    : scorers;
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <div className="flex items-center gap-3 mb-6">
@@ -75,10 +133,15 @@ export default function Admin() {
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
-        {['matches', 'add', 'users'].map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium ${tab === t ? 'bg-gold-400 text-maroon-950' : 'bg-maroon-800 text-maroon-300 hover:bg-maroon-700'}`}>
-            {t === 'matches' ? '⚽ Pertandingan' : t === 'add' ? '➕ Tambah' : '👥 Member'}
+        {[
+          { key: 'matches', label: '⚽ Pertandingan' },
+          { key: 'add', label: '➕ Tambah' },
+          { key: 'users', label: '👥 Member' },
+          { key: 'golden_boot', label: '👟 Golden Boot' },
+        ].map(({ key, label }) => (
+          <button key={key} onClick={() => setTab(key)}
+            className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium ${tab === key ? 'bg-gold-400 text-maroon-950' : 'bg-maroon-800 text-maroon-300 hover:bg-maroon-700'}`}>
+            {label}
           </button>
         ))}
       </div>
@@ -149,12 +212,12 @@ export default function Admin() {
                 onChange={e => setAddForm(f => ({ ...f, away_team: e.target.value }))} required />
             </div>
             <div>
-              <label className="text-xs text-maroon-300 mb-1 block">Flag Kandang (opsional, otomatis dari nama tim)</label>
+              <label className="text-xs text-maroon-300 mb-1 block">Flag Kandang (opsional)</label>
               <input className="input" placeholder="🇧🇷" value={addForm.home_flag}
                 onChange={e => setAddForm(f => ({ ...f, home_flag: e.target.value }))} />
             </div>
             <div>
-              <label className="text-xs text-maroon-300 mb-1 block">Flag Tandang (opsional, otomatis dari nama tim)</label>
+              <label className="text-xs text-maroon-300 mb-1 block">Flag Tandang (opsional)</label>
               <input className="input" placeholder="🇦🇷" value={addForm.away_flag}
                 onChange={e => setAddForm(f => ({ ...f, away_flag: e.target.value }))} />
             </div>
@@ -211,10 +274,11 @@ export default function Admin() {
                   <th className="text-center px-4 py-3 text-maroon-300">Poin</th>
                   <th className="text-center px-4 py-3 text-maroon-300">Tebakan</th>
                   <th className="text-center px-4 py-3 text-maroon-300">Tepat</th>
+                  <th className="text-center px-4 py-3 text-maroon-300">Golden Boot</th>
                 </tr>
               </thead>
               <tbody>
-                {users.map((u, i) => (
+                {users.map(u => (
                   <tr key={u.id} className="border-t border-maroon-700">
                     <td className="px-4 py-3">
                       <div className="font-medium text-cream-100">{u.display_name}</div>
@@ -223,6 +287,15 @@ export default function Admin() {
                     <td className="text-center px-4 py-3 font-bold text-gold-400">{u.total_points}</td>
                     <td className="text-center px-4 py-3 text-maroon-300">{u.total_picks}</td>
                     <td className="text-center px-4 py-3 text-gold-300">{u.exact_scores}</td>
+                    <td className="text-center px-4 py-3 text-maroon-300 text-xs">
+                      {u.golden_boot_pick
+                        ? <span>{u.golden_boot_flag} {u.golden_boot_pick}</span>
+                        : <span className="opacity-50">—</span>
+                      }
+                      {u.golden_boot_bonus > 0 && (
+                        <span className="ml-1 text-gold-400 font-bold">+5</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -230,6 +303,134 @@ export default function Admin() {
           </div>
         </div>
       )}
+
+      {/* Golden Boot Admin */}
+      {tab === 'golden_boot' && (
+        <div className="space-y-4">
+          <p className="text-sm text-maroon-300">
+            Set pemenang Golden Boot setelah turnamen selesai. Semua member yang menebak pemain yang sama akan otomatis mendapat +5 poin.
+          </p>
+
+          {gbMsg && (
+            <div className="card p-3 text-sm text-gold-400 border-gold-400/30">{gbMsg}</div>
+          )}
+
+          {/* Current winner */}
+          {gbWinner && (
+            <div className="card p-4 border-gold-400/40">
+              <div className="text-xs text-gold-300 font-bold uppercase tracking-widest mb-2">Winner Saat Ini</div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-bold text-gold-400 text-lg">{gbWinner.player_name}</div>
+                  <div className="text-sm text-maroon-300">{gbWinner.team_name} · {gbWinner.goals} gol</div>
+                </div>
+                <button onClick={clearGoldenBootWinner}
+                  className="text-xs px-3 py-1.5 rounded-lg bg-maroon-600/60 text-gold-200 hover:bg-maroon-600">
+                  Hapus Winner
+                </button>
+              </div>
+
+              {/* Who got it right */}
+              {gbAllPicks.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-maroon-700">
+                  <div className="text-xs text-maroon-300 mb-2">
+                    {gbAllPicks.filter(p => p.correct).length} dari {gbAllPicks.length} member menebak dengan benar
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {gbAllPicks.map(p => (
+                      <span key={p.username}
+                        className={`text-xs px-2 py-0.5 rounded-full ${p.correct ? 'bg-gold-400/20 text-gold-300' : 'bg-maroon-800 text-maroon-400'}`}>
+                        {p.correct ? '✓' : ''} {p.display_name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Set winner from scorers list */}
+          {!gbWinner && (
+            <>
+              <div className="card p-4">
+                <div className="text-sm font-semibold text-cream-100 mb-3">Pilih Winner dari Daftar Pencetak Gol</div>
+                <input
+                  type="text"
+                  placeholder="Cari nama pemain atau tim..."
+                  className="input w-full mb-3"
+                  value={gbSearch}
+                  onChange={e => setGbSearch(e.target.value)}
+                />
+                {gbLoading && <p className="text-maroon-300 text-sm">Memuat...</p>}
+                {!gbLoading && gbFiltered.length === 0 && (
+                  <p className="text-maroon-300 text-sm text-center py-4">
+                    {scorers.length === 0
+                      ? 'Data pencetak gol belum tersedia (turnamen belum dimulai atau API key tidak dikonfigurasi).'
+                      : 'Tidak ada yang cocok.'}
+                  </p>
+                )}
+                <div className="space-y-1.5 max-h-96 overflow-y-auto">
+                  {gbFiltered.map(scorer => (
+                    <button key={scorer.player_id}
+                      onClick={() => setGoldenBootWinner(scorer)}
+                      className="w-full flex items-center gap-3 p-2.5 rounded-lg bg-maroon-800 hover:bg-maroon-700 transition-colors text-left">
+                      <div className="flex-1">
+                        <div className="font-semibold text-cream-100 text-sm">{scorer.player_name}</div>
+                        <div className="text-xs text-maroon-300">{scorer.team_name}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-gold-400 text-sm">{scorer.goals}</div>
+                        <div className="text-xs text-maroon-300">gol</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Manual entry if scorers API empty */}
+              <ManualWinnerForm onSet={(data) => {
+                api.post('/golden-boot/winner', data)
+                  .then(() => { setGbMsg(`✓ ${data.player_name} ditetapkan.`); loadGoldenBoot(); })
+                  .catch(err => setGbMsg('Error: ' + (err.response?.data?.error || err.message)));
+              }} />
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ManualWinnerForm({ onSet }) {
+  const [form, setForm] = useState({ player_name: '', team_name: '', goals: '' });
+  const [open, setOpen] = useState(false);
+
+  if (!open) return (
+    <button onClick={() => setOpen(true)}
+      className="text-sm text-maroon-400 hover:text-maroon-200 underline">
+      Input manual (jika API tidak tersedia)
+    </button>
+  );
+
+  return (
+    <div className="card p-4">
+      <div className="text-sm font-semibold text-cream-100 mb-3">Input Manual Winner</div>
+      <div className="space-y-2">
+        <input className="input" placeholder="Nama pemain" value={form.player_name}
+          onChange={e => setForm(f => ({ ...f, player_name: e.target.value }))} />
+        <input className="input" placeholder="Nama tim" value={form.team_name}
+          onChange={e => setForm(f => ({ ...f, team_name: e.target.value }))} />
+        <input className="input" type="number" min="0" placeholder="Jumlah gol" value={form.goals}
+          onChange={e => setForm(f => ({ ...f, goals: e.target.value }))} />
+        <button
+          onClick={() => {
+            if (!form.player_name || !form.team_name) return;
+            onSet({ player_id: Date.now(), ...form, goals: parseInt(form.goals) || 0 });
+          }}
+          className="btn-primary w-full text-sm">
+          Tetapkan Winner
+        </button>
+      </div>
     </div>
   );
 }

@@ -15,6 +15,7 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/picks', label: '⚽ Tebak', show: !!user },
+    { to: '/golden-boot', label: '👟 Golden Boot', show: !!user },
     { to: '/leaderboard', label: '🏆 Klasemen', show: true },
     { to: '/cara-poin', label: '📖 Cara Poin', show: true },
     { to: '/admin', label: '⚙️ Admin', show: user?.is_admin },
