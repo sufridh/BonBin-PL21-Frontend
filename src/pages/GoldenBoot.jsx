@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import api from '../utils/api';
-
-const POSITION_ORDER = { 'Offence': 0, 'Midfield': 1, 'Defence': 2, 'Goalkeeper': 3 };
+import Flag from '../components/Flag';
 
 export default function GoldenBoot() {
   const [players, setPlayers] = useState([]);
@@ -35,10 +34,9 @@ export default function GoldenBoot() {
     );
   }, [players, search]);
 
-  // When no search: show scorers (goals > 0) first, hide 0-goal players unless searched
+  // Default view: only players who've scored; search reveals full squad
   const displayList = useMemo(() => {
     if (search.trim()) return filtered;
-    // Default view: show players with goals first, then hint to search for others
     return filtered.filter(p => p.goals > 0);
   }, [filtered, search]);
 
@@ -96,15 +94,16 @@ export default function GoldenBoot() {
         <div className="card p-4 mb-5 border-gold-400 bg-gold-400/5">
           <div className="flex items-center gap-3">
             <span className="text-3xl">🏆</span>
-            <div>
-              <div className="text-xs text-gold-300 font-bold uppercase tracking-widest mb-0.5">Pemenang Golden Boot</div>
-              <div className="text-lg font-bold text-gold-400">{winner.player_name}</div>
-              <div className="text-sm text-maroon-300">
-                {winner.team_name} · {winner.goals} gol
+            <div className="flex items-center gap-2 flex-1">
+              <Flag team={winner.team_name} className="w-8 h-5 rounded-sm" />
+              <div>
+                <div className="text-xs text-gold-300 font-bold uppercase tracking-widest mb-0.5">Pemenang Golden Boot</div>
+                <div className="text-lg font-bold text-gold-400">{winner.player_name}</div>
+                <div className="text-sm text-maroon-300">{winner.team_name} · {winner.goals} gol</div>
               </div>
             </div>
             {myPick?.player_id === winner.player_id && (
-              <div className="ml-auto text-center">
+              <div className="text-center">
                 <div className="text-2xl font-bold text-gold-400">+5</div>
                 <div className="text-xs text-gold-300">poin bonus!</div>
               </div>
@@ -118,7 +117,7 @@ export default function GoldenBoot() {
         <div className={`card p-4 mb-5 ${locked && myPick.player_id === winner?.player_id ? 'border-gold-400' : ''}`}>
           <div className="text-xs text-maroon-300 uppercase tracking-widest mb-2 font-bold">Pilihan Kamu</div>
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{myPick.team_flag}</span>
+            <Flag team={myPick.team_name} className="w-8 h-5 rounded-sm flex-shrink-0" />
             <div className="flex-1">
               <div className="font-bold text-cream-100">{myPick.player_name}</div>
               <div className="text-sm text-maroon-300">{myPick.team_name}</div>
@@ -146,7 +145,6 @@ export default function GoldenBoot() {
       {/* Pick form */}
       {!locked && (
         <>
-          {/* Search */}
           <div className="mb-3">
             <input
               type="text"
@@ -157,7 +155,6 @@ export default function GoldenBoot() {
             />
           </div>
 
-          {/* Hint to search for squad players */}
           {!search.trim() && hasNonScorers && (
             <p className="text-xs text-maroon-300 mb-3 px-1">
               Menampilkan {displayList.length} pemain yang sudah mencetak gol.
@@ -174,22 +171,19 @@ export default function GoldenBoot() {
             </div>
           )}
 
-          {/* No results */}
           {search.trim() && filtered.length === 0 && (
             <p className="text-center text-maroon-300 py-6 text-sm">
               Tidak ada pemain yang cocok dengan "{search}"
             </p>
           )}
 
-          {/* No data at all */}
           {players.length === 0 && (
             <div className="text-center text-maroon-300 py-12 text-sm">
               <div className="text-4xl mb-3">⚽</div>
-              <p>Data pemain belum tersedia — API key mungkin belum dikonfigurasi.</p>
+              <p>Data pemain belum tersedia.</p>
             </div>
           )}
 
-          {/* Player list */}
           <div className="space-y-1.5">
             {displayList.map(player => {
               const isSelected = myPick?.player_id === player.player_id;
@@ -204,10 +198,8 @@ export default function GoldenBoot() {
                       : 'hover:border-maroon-500'
                   }`}
                 >
-                  {/* Flag from backend — already correct emoji */}
-                  <span className="text-xl w-7 text-center flex-shrink-0 leading-none">
-                    {player.team_flag}
-                  </span>
+                  {/* Flag image — same component used in MatchCard */}
+                  <Flag team={player.team_name} className="w-8 h-5 rounded-sm flex-shrink-0" />
 
                   <div className="flex-1 min-w-0">
                     <div className={`font-semibold truncate ${isSelected ? 'text-gold-400' : 'text-cream-100'}`}>
@@ -221,7 +213,6 @@ export default function GoldenBoot() {
                     </div>
                   </div>
 
-                  {/* Goals badge */}
                   {player.goals > 0 && (
                     <div className="text-right flex-shrink-0">
                       <div className={`font-bold tabular-nums ${isSelected ? 'text-gold-400' : 'text-cream-100'}`}>
@@ -239,7 +230,6 @@ export default function GoldenBoot() {
             })}
           </div>
 
-          {/* Search prompt when default list is empty (no goals scored yet) */}
           {!search.trim() && displayList.length === 0 && players.length > 0 && (
             <div className="text-center text-maroon-300 py-8 text-sm">
               <div className="text-4xl mb-3">🔍</div>
