@@ -28,8 +28,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div
-        className="absolute inset-0 bg-no-repeat bg-center bg-contain pointer-events-none"
-        style={{ backgroundImage: "url('/background.png')", opacity: 0.08 }}
+        className="absolute inset-0 bg-no-repeat bg-cover pointer-events-none"
+        style={{ backgroundImage: "url('/background.png')", backgroundPosition: '70% center', opacity: 0.08 }}
         aria-hidden="true"
       />
       <div className="w-full max-w-sm relative z-10">
