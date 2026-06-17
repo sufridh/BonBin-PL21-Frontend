@@ -26,8 +26,13 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      <div
+        className="absolute inset-0 bg-no-repeat bg-center bg-contain pointer-events-none"
+        style={{ backgroundImage: "url('/background.png')", opacity: 0.08 }}
+        aria-hidden="true"
+      />
+      <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
           <div className="text-6xl mb-3">⚽</div>
           <h1 className="font-display text-4xl text-gold-400 tracking-wider">BONBIN PL</h1>

@@ -26,8 +26,13 @@ export default function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      <div
+        className="absolute inset-0 bg-no-repeat bg-center bg-contain pointer-events-none"
+        style={{ backgroundImage: "url('/background.png')", opacity: 0.08 }}
+        aria-hidden="true"
+      />
+      <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
           <div className="text-6xl mb-3">⚽</div>
           <h1 className="font-display text-4xl text-gold-400 tracking-wider">BONBIN PL</h1>
@@ -35,7 +40,7 @@ export default function Register() {
         </div>
 
         <div className="card p-6">
-          <h2 className="text-xl font-bold mb-4">Daftar Akun</h2>
+          <h2 className="text-xl font-bold mb-4 text-cream-100">Daftar Akun</h2>
           {error && <div className="bg-maroon-700/60 border border-maroon-500 text-gold-200 rounded-lg p-3 mb-4 text-sm">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -43,7 +48,7 @@ export default function Register() {
               <input
                 className="input"
                 type="text"
-                placeholder="Nama di leaderboard"
+                placeholder="Nama lo di leaderboard"
                 value={form.display_name}
                 onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
                 required
