@@ -59,11 +59,11 @@ export default function MatchCard({ match, onPickSaved }) {
   return (
     <div className={`card p-4 ${match.status === 'live' ? 'border-gold-400/70' : ''}`}>
       {/* Header: stage + date */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between gap-2 mb-3 flex-wrap">
         <span className="text-xs text-maroon-300 uppercase tracking-wide">
           {match.group_name || match.stage}
         </span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {STATUS_BADGE[match.status]}
           <span className="text-xs text-maroon-300">{dateStr} · {timeStr}</span>
         </div>
@@ -78,7 +78,7 @@ export default function MatchCard({ match, onPickSaved }) {
         </div>
 
         {/* Score area */}
-        <div className="flex flex-col items-center px-3 min-w-[120px]">
+        <div className="flex flex-col items-center px-2 sm:px-3 min-w-[100px] sm:min-w-[120px] flex-shrink-0">
           {match.status === 'finished' || match.status === 'live' ? (
             <div className="flex items-center gap-2">
               <span className="text-2xl font-bold text-gold-400">{match.home_score}</span>

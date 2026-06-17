@@ -74,10 +74,10 @@ export default function Admin() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto no-scrollbar pb-1">
         {['matches', 'add', 'users'].map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium ${tab === t ? 'bg-gold-400 text-maroon-950' : 'bg-maroon-800 text-maroon-300 hover:bg-maroon-700'}`}>
+            className={`flex-shrink-0 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium ${tab === t ? 'bg-gold-400 text-maroon-950' : 'bg-maroon-800 text-maroon-300 hover:bg-maroon-700'}`}>
             {t === 'matches' ? '⚽ Pertandingan' : t === 'add' ? '➕ Tambah' : '👥 Member'}
           </button>
         ))}
@@ -137,7 +137,7 @@ export default function Admin() {
       {tab === 'add' && (
         <div className="card p-5">
           <h2 className="font-bold mb-4 text-cream-100">Tambah Pertandingan Manual</h2>
-          <form onSubmit={addMatch} className="grid grid-cols-2 gap-3">
+          <form onSubmit={addMatch} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-maroon-300 mb-1 block">Tim Kandang</label>
               <input className="input" placeholder="Brazil" value={addForm.home_team}
@@ -203,29 +203,31 @@ export default function Admin() {
       {/* Users */}
       {tab === 'users' && (
         <div className="card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-maroon-800/50">
-              <tr>
-                <th className="text-left px-4 py-3 text-maroon-300">Nama</th>
-                <th className="text-center px-4 py-3 text-maroon-300">Poin</th>
-                <th className="text-center px-4 py-3 text-maroon-300">Tebakan</th>
-                <th className="text-center px-4 py-3 text-maroon-300">Tepat</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u, i) => (
-                <tr key={u.id} className="border-t border-maroon-700">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-cream-100">{u.display_name}</div>
-                    <div className="text-xs text-maroon-300">@{u.username}</div>
-                  </td>
-                  <td className="text-center px-4 py-3 font-bold text-gold-400">{u.total_points}</td>
-                  <td className="text-center px-4 py-3 text-maroon-300">{u.total_picks}</td>
-                  <td className="text-center px-4 py-3 text-gold-300">{u.exact_scores}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-maroon-800/50">
+                <tr>
+                  <th className="text-left px-4 py-3 text-maroon-300">Nama</th>
+                  <th className="text-center px-4 py-3 text-maroon-300">Poin</th>
+                  <th className="text-center px-4 py-3 text-maroon-300">Tebakan</th>
+                  <th className="text-center px-4 py-3 text-maroon-300">Tepat</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((u, i) => (
+                  <tr key={u.id} className="border-t border-maroon-700">
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-cream-100">{u.display_name}</div>
+                      <div className="text-xs text-maroon-300">@{u.username}</div>
+                    </td>
+                    <td className="text-center px-4 py-3 font-bold text-gold-400">{u.total_points}</td>
+                    <td className="text-center px-4 py-3 text-maroon-300">{u.total_picks}</td>
+                    <td className="text-center px-4 py-3 text-gold-300">{u.exact_scores}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -66,7 +66,7 @@ export default function Picks() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+      <div className="flex gap-2 mb-5 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
         {[
           { key: 'all', label: 'Semua' },
           { key: 'unpicked', label: '⚠ Belum Ditebak' },
