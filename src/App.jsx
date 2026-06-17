@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Picks from './pages/Picks';
 import Leaderboard from './pages/Leaderboard';
+import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 
 function PrivateRoute({ children }) {
@@ -34,6 +35,7 @@ function AppRoutes() {
           <Route path="/login" element={user ? <Navigate to="/picks" /> : <Login />} />
           <Route path="/register" element={user ? <Navigate to="/picks" /> : <Register />} />
           <Route path="/picks" element={<PrivateRoute><Picks /></PrivateRoute>} />
+          <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />

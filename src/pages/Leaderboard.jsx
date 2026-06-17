@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
+import Avatar from '../components/Avatar';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
@@ -56,6 +57,14 @@ export default function Leaderboard() {
                   : <span className="text-maroon-300 font-bold text-lg">{rank}</span>
                 }
               </div>
+
+              {/* Avatar */}
+              <Avatar
+                src={entry.avatar_base64}
+                name={entry.display_name}
+                size={40}
+                className={isMe ? 'ring-2 ring-gold-400' : ''}
+              />
 
               {/* Name */}
               <div className="flex-1 min-w-0">

@@ -23,6 +23,12 @@ export function AuthProvider({ children }) {
     setUser(userData);
   }
 
+  function updateUser(userData) {
+    const merged = { ...user, ...userData };
+    localStorage.setItem('bonbin_user', JSON.stringify(merged));
+    setUser(merged);
+  }
+
   function logout() {
     localStorage.removeItem('bonbin_token');
     localStorage.removeItem('bonbin_user');
@@ -30,7 +36,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, loading }}>
       {children}
     </AuthContext.Provider>
   );
