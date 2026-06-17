@@ -43,7 +43,7 @@ export default function Register() {
               <input
                 className="input"
                 type="text"
-                placeholder="Nama lo di leaderboard"
+                placeholder="Nama di leaderboard"
                 value={form.display_name}
                 onChange={e => setForm(f => ({ ...f, display_name: e.target.value }))}
                 required
