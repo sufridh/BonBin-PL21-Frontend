@@ -20,6 +20,7 @@ export default function Admin() {
   const [gbAllPicks, setGbAllPicks] = useState([]);
   const [gbLoading, setGbLoading] = useState(false);
   const [gbMsg, setGbMsg] = useState('');
+  const [gbLock, setGbLock] = useState({ is_locked: false, locked_at: null });
 
   async function loadData() {
     const [mRes, lRes] = await Promise.all([
@@ -33,16 +34,32 @@ export default function Admin() {
   async function loadGoldenBoot() {
     setGbLoading(true);
     try {
-      const [scorersRes, winnerRes, allPicksRes] = await Promise.all([
+      const [scorersRes, winnerRes, allPicksRes, lockRes] = await Promise.all([
         api.get('/golden-boot/scorers').catch(() => ({ data: [] })),
         api.get('/golden-boot/winner').catch(() => ({ data: null })),
         api.get('/golden-boot/all').catch(() => ({ data: { picks: [], winner: null } })),
+        api.get('/golden-boot/lock').catch(() => ({ data: { is_locked: false, locked_at: null } })),
       ]);
       setScorers(scorersRes.data || []);
       setGbWinner(winnerRes.data || null);
       setGbAllPicks(allPicksRes.data?.picks || []);
+      setGbLock(lockRes.data || { is_locked: false, locked_at: null });
     } finally {
       setGbLoading(false);
+    }
+  }
+
+  async function toggleGoldenBootLock() {
+    const next = !gbLock.is_locked;
+    if (!confirm(next
+      ? 'Kunci pilihan Golden Boot? Member tidak akan bisa submit/ubah pilihan lagi.'
+      : 'Buka kunci pilihan Golden Boot? Member akan bisa submit/ubah pilihan lagi.')) return;
+    try {
+      const res = await api.patch('/golden-boot/lock', { is_locked: next });
+      setGbLock(res.data);
+      setGbMsg(next ? '🔒 Pilihan Golden Boot dikunci.' : '🔓 Pilihan Golden Boot dibuka kembali.');
+    } catch (err) {
+      setGbMsg('Error: ' + (err.response?.data?.error || err.message));
     }
   }
 
@@ -314,6 +331,31 @@ export default function Admin() {
           {gbMsg && (
             <div className="card p-3 text-sm text-gold-400 border-gold-400/30">{gbMsg}</div>
           )}
+
+          {/* Submission lock toggle */}
+          <div className={`card p-4 flex items-center justify-between gap-3 flex-wrap ${gbLock.is_locked ? 'border-gold-400/40' : ''}`}>
+            <div>
+              <div className="font-semibold text-sm text-cream-100">
+                {gbLock.is_locked ? '🔒 Pilihan Terkunci' : '🔓 Pilihan Terbuka'}
+              </div>
+              <div className="text-xs text-maroon-300 mt-0.5">
+                {gbLock.is_locked
+                  ? `Member tidak bisa submit/ubah pilihan${gbLock.locked_at ? ' · dikunci ' + new Date(gbLock.locked_at).toLocaleString('id-ID') : ''}.`
+                  : 'Member masih bisa submit/ubah pilihan Golden Boot mereka.'}
+              </div>
+            </div>
+            <button
+              onClick={toggleGoldenBootLock}
+              disabled={!!gbWinner}
+              title={gbWinner ? 'Winner sudah ditetapkan — picks otomatis terkunci' : ''}
+              className={`text-xs py-1.5 px-3 rounded-lg font-medium ${
+                gbWinner ? 'bg-maroon-800 text-maroon-400 cursor-not-allowed' :
+                gbLock.is_locked ? 'bg-maroon-600/60 text-gold-200 hover:bg-maroon-600' : 'btn-primary'
+              }`}
+            >
+              {gbLock.is_locked ? 'Buka Kunci' : 'Kunci Sekarang'}
+            </button>
+          </div>
 
           {/* Current winner */}
           {gbWinner && (

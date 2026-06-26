@@ -6,6 +6,7 @@ export default function GoldenBoot() {
   const [players, setPlayers] = useState([]);
   const [myPick, setMyPick] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [adminLock, setAdminLock] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState('');
@@ -17,14 +18,16 @@ export default function GoldenBoot() {
       api.get('/golden-boot/scorers').catch(() => ({ data: [] })),
       api.get('/golden-boot/my').catch(() => ({ data: null })),
       api.get('/golden-boot/winner').catch(() => ({ data: null })),
-    ]).then(([playersRes, myPickRes, winnerRes]) => {
+      api.get('/golden-boot/lock').catch(() => ({ data: { is_locked: false } })),
+    ]).then(([playersRes, myPickRes, winnerRes, lockRes]) => {
       setPlayers(playersRes.data || []);
       setMyPick(myPickRes.data || null);
       setWinner(winnerRes.data || null);
+      setAdminLock(!!lockRes.data?.is_locked);
     }).finally(() => setLoading(false));
   }, []);
 
-  const locked = winner !== null;
+  const locked = winner !== null || adminLock;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -114,7 +117,7 @@ export default function GoldenBoot() {
 
       {/* My current pick */}
       {myPick && (
-        <div className={`card p-4 mb-5 ${locked && myPick.player_id === winner?.player_id ? 'border-gold-400' : ''}`}>
+        <div className={`card p-4 mb-5 ${winner && myPick.player_id === winner.player_id ? 'border-gold-400' : ''}`}>
           <div className="text-xs text-maroon-300 uppercase tracking-widest mb-2 font-bold">Pilihan Kamu</div>
           <div className="flex items-center gap-3">
             <Flag team={myPick.team_name} className="w-8 h-5 rounded-sm flex-shrink-0" />
@@ -122,11 +125,14 @@ export default function GoldenBoot() {
               <div className="font-bold text-cream-100">{myPick.player_name}</div>
               <div className="text-sm text-maroon-300">{myPick.team_name}</div>
             </div>
-            {locked && myPick.player_id === winner?.player_id && (
+            {winner && myPick.player_id === winner.player_id && (
               <span className="text-gold-400 font-bold text-sm">✓ Benar! +5 poin</span>
             )}
-            {locked && myPick.player_id !== winner?.player_id && (
+            {winner && myPick.player_id !== winner.player_id && (
               <span className="text-maroon-400 text-sm">✗ Tidak tepat</span>
+            )}
+            {!winner && locked && (
+              <span className="text-xs bg-maroon-700 text-maroon-300 px-2 py-1 rounded-full">🔒 Terkunci</span>
             )}
             {!locked && (
               <span className="text-xs bg-gold-400/20 text-gold-300 px-2 py-1 rounded-full">Tersimpan</span>
@@ -138,7 +144,9 @@ export default function GoldenBoot() {
       {/* Locked with no pick */}
       {locked && !myPick && (
         <div className="card p-4 mb-5 text-center text-maroon-300">
-          Kamu tidak memasukkan tebakan Golden Boot sebelum pengumuman pemenang.
+          {winner
+            ? 'Kamu tidak memasukkan tebakan Golden Boot sebelum pengumuman pemenang.'
+            : 'Pilihan Golden Boot sudah dikunci oleh admin. Kamu belum memasukkan tebakan.'}
         </div>
       )}
 
