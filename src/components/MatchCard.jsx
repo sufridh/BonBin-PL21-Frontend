@@ -18,8 +18,12 @@ function getResultLabel(points) {
 }
 
 function formatPoints(p) {
-  // Show one decimal place only if needed (e.g. "2.5" but not "2.0")
   return Number.isInteger(p) ? String(p) : p.toFixed(1);
+}
+
+function isKnockoutStage(stage) {
+  if (!stage) return false;
+  return !stage.toLowerCase().includes('group');
 }
 
 export default function MatchCard({ match, onPickSaved }) {
@@ -29,6 +33,7 @@ export default function MatchCard({ match, onPickSaved }) {
   const [awayInput, setAwayInput] = useState(
     match.away_score_pick != null ? String(match.away_score_pick) : ''
   );
+  const [penaltyPick, setPenaltyPick] = useState(match.penalty_pick ?? null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
@@ -36,6 +41,12 @@ export default function MatchCard({ match, onPickSaved }) {
   const locked = match.is_locked || match.status === 'live' || match.status === 'finished';
   const hasPick = match.home_score_pick != null;
   const result = hasPick && match.status === 'finished' ? getResultLabel(match.points_earned) : null;
+  const knockout = isKnockoutStage(match.stage);
+
+  const homeVal = parseInt(homeInput);
+  const awayVal = parseInt(awayInput);
+  const pickIsDraw = !isNaN(homeVal) && !isNaN(awayVal) && homeVal === awayVal;
+  const showPenaltyPicker = knockout && !locked && pickIsDraw;
 
   const matchDate = new Date(match.match_date);
   const dateStr = matchDate.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -46,11 +57,20 @@ export default function MatchCard({ match, onPickSaved }) {
     const a = parseInt(awayInput);
     if (isNaN(h) || isNaN(a)) { setError('Isi kedua skor dulu'); return; }
     if (h < 0 || a < 0) { setError('Skor tidak boleh negatif'); return; }
+    if (knockout && h === a && !penaltyPick) {
+      setError('Pilih tim pemenang adu penalti');
+      return;
+    }
 
     setSaving(true);
     setError('');
     try {
-      await api.post('/picks', { match_id: match.id, home_score_pick: h, away_score_pick: a });
+      await api.post('/picks', {
+        match_id: match.id,
+        home_score_pick: h,
+        away_score_pick: a,
+        penalty_pick: (h === a) ? penaltyPick : null,
+      });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       if (onPickSaved) onPickSaved();
@@ -61,7 +81,10 @@ export default function MatchCard({ match, onPickSaved }) {
     }
   }
 
-  const pickChanged = String(match.home_score_pick ?? '') !== homeInput || String(match.away_score_pick ?? '') !== awayInput;
+  const pickChanged =
+    String(match.home_score_pick ?? '') !== homeInput ||
+    String(match.away_score_pick ?? '') !== awayInput ||
+    (match.penalty_pick ?? null) !== penaltyPick;
 
   return (
     <div className={`card p-4 ${match.status === 'live' ? 'border-gold-400/70' : ''}`}>
@@ -87,10 +110,17 @@ export default function MatchCard({ match, onPickSaved }) {
         {/* Score area */}
         <div className="flex flex-col items-center px-2 sm:px-3 min-w-[100px] sm:min-w-[120px] flex-shrink-0">
           {match.status === 'finished' || match.status === 'live' ? (
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-gold-400">{match.home_score}</span>
-              <span className="text-maroon-300">–</span>
-              <span className="text-2xl font-bold text-gold-400">{match.away_score}</span>
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-gold-400">{match.home_score}</span>
+                <span className="text-maroon-300">–</span>
+                <span className="text-2xl font-bold text-gold-400">{match.away_score}</span>
+              </div>
+              {match.went_to_penalties && (
+                <span className="text-xs text-maroon-300 bg-maroon-800 px-2 py-0.5 rounded-full">
+                  pen. {match.penalty_winner === 'home' ? match.home_team : match.away_team} ✓
+                </span>
+              )}
             </div>
           ) : (
             <div className="text-maroon-300 text-lg font-bold">vs</div>
@@ -118,11 +148,19 @@ export default function MatchCard({ match, onPickSaved }) {
               />
             </div>
           ) : hasPick ? (
-            <div className="flex items-center gap-1 mt-2 text-maroon-300 text-sm">
-              <span className="text-cream-100 font-bold">{match.home_score_pick}</span>
-              <span className="text-maroon-300">–</span>
-              <span className="text-cream-100 font-bold">{match.away_score_pick}</span>
-              <span className="text-maroon-300 text-xs ml-1">(tebakan)</span>
+            <div className="flex flex-col items-center gap-1 mt-2">
+              <div className="flex items-center gap-1 text-sm">
+                <span className="text-cream-100 font-bold">{match.home_score_pick}</span>
+                <span className="text-maroon-300">–</span>
+                <span className="text-cream-100 font-bold">{match.away_score_pick}</span>
+                <span className="text-maroon-300 text-xs ml-1">(tebakan)</span>
+              </div>
+              {/* Show penalty pick on locked cards */}
+              {match.penalty_pick && (
+                <span className="text-xs text-maroon-300 bg-maroon-800 px-2 py-0.5 rounded-full">
+                  🥅 pen: {match.penalty_pick === 'home' ? match.home_team : match.away_team}
+                </span>
+              )}
             </div>
           ) : (
             <p className="text-maroon-300 text-xs mt-2">Terkunci</p>
@@ -135,6 +173,37 @@ export default function MatchCard({ match, onPickSaved }) {
           <span className="text-sm font-semibold leading-tight mt-1 text-cream-100">{match.away_team}</span>
         </div>
       </div>
+
+      {/* Penalty pick selector (knockout + draw pick only) */}
+      {showPenaltyPicker && (
+        <div className="mt-3 pt-3 border-t border-maroon-700">
+          <p className="text-xs text-maroon-300 text-center mb-2">
+            🥅 Seri — siapa menang <span className="text-gold-400 font-medium">adu penalti</span>?
+          </p>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => setPenaltyPick('home')}
+              className={`flex-1 max-w-[140px] py-1.5 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                penaltyPick === 'home'
+                  ? 'bg-gold-400 text-maroon-950 border-gold-400'
+                  : 'bg-maroon-800 text-maroon-300 border-maroon-600 hover:border-maroon-500'
+              }`}
+            >
+              {match.home_team}
+            </button>
+            <button
+              onClick={() => setPenaltyPick('away')}
+              className={`flex-1 max-w-[140px] py-1.5 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                penaltyPick === 'away'
+                  ? 'bg-gold-400 text-maroon-950 border-gold-400'
+                  : 'bg-maroon-800 text-maroon-300 border-maroon-600 hover:border-maroon-500'
+              }`}
+            >
+              {match.away_team}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Save button & result */}
       <div className="mt-3 flex flex-col items-center gap-1">

@@ -300,6 +300,105 @@ export default function HowToScore() {
         </div>
       </div>
 
+      {/* Penalty (knockout) rules */}
+      <div>
+        <h2 className="text-sm font-semibold text-maroon-300 uppercase tracking-widest mb-3">
+          🥅 Babak Gugur — Adu Penalti
+        </h2>
+        <div className="card p-4 space-y-4">
+          <p className="text-maroon-300 text-sm">
+            Mulai <span className="text-cream-100 font-medium">Babak 32 Besar</span>, pertandingan bisa berakhir lewat adu penalti.
+            Ada dua cara tebak yang berbeda:
+          </p>
+
+          {/* Option A: pick a draw */}
+          <div className="bg-maroon-800/60 rounded-xl p-3 space-y-2">
+            <div className="flex items-center gap-2 font-medium text-cream-100 text-sm">
+              <span className="text-lg">🤝</span> Nebak seri (mis. 1–1, 0–0, 2–2…)
+            </div>
+            <p className="text-maroon-300 text-xs leading-relaxed">
+              Kamu <span className="text-gold-400 font-medium">wajib pilih tim pemenang penalti</span> saat menebak skor seri.
+              Tombol pilih tim akan muncul otomatis.
+            </p>
+            <div className="space-y-1 text-xs">
+              <div className="flex items-start gap-2 text-emerald-400">
+                <span className="flex-shrink-0 mt-0.5">✓</span>
+                <span>Benar tim pemenang penalti + match memang selesai lewat penalti → <span className="font-bold">3 poin</span></span>
+              </div>
+              <div className="flex items-start gap-2 text-maroon-300">
+                <span className="flex-shrink-0 mt-0.5">~</span>
+                <span>Benar seri, tapi salah pilih pemenang penalti → <span className="font-medium text-cream-100">1 poin</span></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Option B: pick a winner (non-draw) */}
+          <div className="bg-maroon-800/60 rounded-xl p-3 space-y-2">
+            <div className="flex items-center gap-2 font-medium text-cream-100 text-sm">
+              <span className="text-lg">⚽</span> Nebak menang langsung (mis. 2–1, 3–0…)
+            </div>
+            <p className="text-maroon-300 text-xs leading-relaxed">
+              Tidak ada pilihan penalti — kamu menebak tim yang menang di 90 menit.
+              Kalau ternyata matchnya berakhir lewat penalti:
+            </p>
+            <div className="space-y-1 text-xs">
+              <div className="flex items-start gap-2 text-emerald-400">
+                <span className="flex-shrink-0 mt-0.5">✓</span>
+                <span>Tim yang kamu jagokan menang (via penalti) → <span className="font-bold">1 poin</span></span>
+              </div>
+              <div className="flex items-start gap-2 text-maroon-300">
+                <span className="flex-shrink-0 mt-0.5">✗</span>
+                <span>Tim yang kamu jagokan kalah → <span className="font-medium">0 poin</span></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick cheat-sheet table */}
+          <div className="overflow-x-auto -mx-1">
+            <table className="w-full text-xs min-w-[320px]">
+              <thead>
+                <tr className="text-maroon-400 border-b border-maroon-700">
+                  <th className="text-left py-2 px-2 font-semibold">Tebakan kamu</th>
+                  <th className="text-left py-2 px-2 font-semibold">Hasil nyata</th>
+                  <th className="text-center py-2 px-2 font-semibold">Poin</th>
+                </tr>
+              </thead>
+              <tbody className="text-maroon-300">
+                <tr className="border-b border-maroon-800/60">
+                  <td className="py-1.5 px-2">1–1 + 🇧🇷 menang pen</td>
+                  <td className="py-1.5 px-2">1–1, 🇧🇷 menang pen ✓</td>
+                  <td className="py-1.5 px-2 text-center text-gold-400 font-bold">3</td>
+                </tr>
+                <tr className="border-b border-maroon-800/60">
+                  <td className="py-1.5 px-2">0–0 + 🇧🇷 menang pen</td>
+                  <td className="py-1.5 px-2">1–1, 🇧🇷 menang pen ✓</td>
+                  <td className="py-1.5 px-2 text-center text-gold-400 font-bold">3</td>
+                </tr>
+                <tr className="border-b border-maroon-800/60">
+                  <td className="py-1.5 px-2">1–1 + 🇩🇪 menang pen</td>
+                  <td className="py-1.5 px-2">1–1, 🇧🇷 menang pen ✗</td>
+                  <td className="py-1.5 px-2 text-center font-medium text-cream-100">1</td>
+                </tr>
+                <tr className="border-b border-maroon-800/60">
+                  <td className="py-1.5 px-2">2–1 (🇧🇷 menang)</td>
+                  <td className="py-1.5 px-2">1–1, 🇧🇷 menang pen ✓</td>
+                  <td className="py-1.5 px-2 text-center font-medium text-cream-100">1</td>
+                </tr>
+                <tr>
+                  <td className="py-1.5 px-2">2–1 (🇧🇷 menang)</td>
+                  <td className="py-1.5 px-2">1–1, 🇩🇪 menang pen ✗</td>
+                  <td className="py-1.5 px-2 text-center text-maroon-400">0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-maroon-400 text-xs">
+            * Skor yang dicatat adalah skor 90 menit (atau extra time).
+            Untuk menang lewat penalti, skor resminya tetap seri.
+          </p>
+        </div>
+      </div>
+
       {/* Rules / Notes */}
       <div>
         <h2 className="text-sm font-semibold text-maroon-300 uppercase tracking-widest mb-3">
@@ -326,6 +425,11 @@ export default function HowToScore() {
               icon: '👁️',
               title: 'Tebakan tersembunyi sampai kick-off',
               desc: 'Tebakan peserta lain tidak terlihat sebelum pertandingan dimulai.',
+            },
+            {
+              icon: '🥅',
+              title: 'Penalti wajib dipilih saat nebak seri (babak gugur)',
+              desc: 'Kalau nebak skor seri di babak knockout, kamu harus milih tim pemenang penalti. Pilih yang bener = 3 poin otomatis!',
             },
           ].map((rule, i) => (
             <div key={i} className="flex gap-3">

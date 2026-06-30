@@ -84,11 +84,20 @@ export default function Admin() {
   async function updateScore(matchId) {
     const form = scoreForm[matchId];
     if (!form) return;
+    const h = parseInt(form.home);
+    const a = parseInt(form.away);
+    const isPenalty = form.went_to_penalties ?? false;
+    if (isPenalty && !form.penalty_winner) {
+      alert('Pilih tim pemenang adu penalti terlebih dahulu');
+      return;
+    }
     try {
       await api.patch(`/matches/${matchId}/score`, {
-        home_score: parseInt(form.home),
-        away_score: parseInt(form.away),
-        status: 'finished'
+        home_score: h,
+        away_score: a,
+        status: 'finished',
+        went_to_penalties: isPenalty,
+        penalty_winner: isPenalty ? form.penalty_winner : null,
       });
       loadData();
     } catch (err) {
@@ -199,6 +208,46 @@ export default function Admin() {
                   value={scoreForm[m.id]?.away ?? ''}
                   onChange={e => setScoreForm(f => ({ ...f, [m.id]: { ...f[m.id], away: e.target.value } }))}
                 />
+                {/* Penalty toggle — only for knockout stages */}
+                {m.stage && !m.stage.toLowerCase().includes('group') && (
+                  <label className="flex items-center gap-1.5 text-xs text-maroon-300 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={scoreForm[m.id]?.went_to_penalties ?? false}
+                      onChange={e => setScoreForm(f => ({
+                        ...f,
+                        [m.id]: { ...f[m.id], went_to_penalties: e.target.checked, penalty_winner: undefined }
+                      }))}
+                      className="w-3.5 h-3.5 accent-gold-400"
+                    />
+                    🥅 Penalti
+                  </label>
+                )}
+                {/* Penalty winner picker */}
+                {scoreForm[m.id]?.went_to_penalties && (
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => setScoreForm(f => ({ ...f, [m.id]: { ...f[m.id], penalty_winner: 'home' } }))}
+                      className={`text-xs px-2 py-1 rounded-lg border transition-colors ${
+                        scoreForm[m.id]?.penalty_winner === 'home'
+                          ? 'bg-gold-400 text-maroon-950 border-gold-400'
+                          : 'bg-maroon-800 border-maroon-600 text-maroon-300'
+                      }`}
+                    >
+                      {m.home_team}
+                    </button>
+                    <button
+                      onClick={() => setScoreForm(f => ({ ...f, [m.id]: { ...f[m.id], penalty_winner: 'away' } }))}
+                      className={`text-xs px-2 py-1 rounded-lg border transition-colors ${
+                        scoreForm[m.id]?.penalty_winner === 'away'
+                          ? 'bg-gold-400 text-maroon-950 border-gold-400'
+                          : 'bg-maroon-800 border-maroon-600 text-maroon-300'
+                      }`}
+                    >
+                      {m.away_team}
+                    </button>
+                  </div>
+                )}
                 <button onClick={() => updateScore(m.id)}
                   className="btn-primary text-xs py-1 px-3">Simpan Skor</button>
                 <button onClick={() => toggleLock(m)}
@@ -208,6 +257,14 @@ export default function Admin() {
                 <button onClick={() => deleteMatch(m.id)}
                   className="text-xs px-3 py-1 rounded-lg bg-maroon-600/60 text-gold-200 hover:bg-maroon-600">Hapus</button>
               </div>
+              {/* Show existing penalty result */}
+              {m.went_to_penalties && m.penalty_winner && (
+                <div className="mt-2 text-xs text-maroon-300">
+                  🥅 Penalti: <span className="text-gold-400 font-medium">
+                    {m.penalty_winner === 'home' ? m.home_team : m.away_team}
+                  </span> menang
+                </div>
+              )}
             </div>
           ))}
         </div>
